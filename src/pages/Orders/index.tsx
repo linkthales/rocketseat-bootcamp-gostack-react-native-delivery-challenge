@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Image } from 'react-native';
+import { AxiosResponse } from 'axios';
 
 import api from '../../services/api';
 import formatValue from '../../utils/formatValue';
@@ -23,7 +24,7 @@ interface Food {
   name: string;
   description: string;
   price: number;
-  formattedValue: number;
+  formattedValue: string;
   thumbnail_url: string;
 }
 
@@ -33,6 +34,15 @@ const Orders: React.FC = () => {
   useEffect(() => {
     async function loadOrders(): Promise<void> {
       // Load orders from API
+
+      const response: AxiosResponse<Array<Food>> = await api.get('/orders');
+
+      const responseOrders = response.data.map(order => ({
+        ...order,
+        formattedValue: formatValue(Number(order.price)),
+      }));
+
+      setOrders(responseOrders);
     }
 
     loadOrders();
@@ -59,7 +69,7 @@ const Orders: React.FC = () => {
               <FoodContent>
                 <FoodTitle>{item.name}</FoodTitle>
                 <FoodDescription>{item.description}</FoodDescription>
-                <FoodPricing>{item.formattedPrice}</FoodPricing>
+                <FoodPricing>{item.formattedValue}</FoodPricing>
               </FoodContent>
             </Food>
           )}
